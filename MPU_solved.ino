@@ -18,7 +18,7 @@ float Total_angle_x, Total_angle_y, Total_angle_z;
 unsigned long loop_timer;
 int temperature;
 float gyro_roll_input,gyro_pitch_input,gyro_yaw_input;
-
+boolean set_gyro_angles = false;
 void setup() {
   // put your setup code here, to run once:
   Wire.begin();                                                        //Start I2C as master
@@ -83,8 +83,8 @@ void read_IMU(){
     Gyr_rawZ = (Gyr_rawZ/32.8) - Gyro_raw_error_z;   
 
        //0.000001066 = 0.0000611 * (3.142(PI) / 180degr) The Arduino sin function is in radians
-  //Gyr_rawY += Gyr_rawX * sin(Gyr_rawZ * 0.00012);               //If the IMU has yawed transfer the roll angle to the pitch angel
-  // Gyr_rawX -= Gyr_rawY * sin(Gyr_rawZ * 0.00012);               //If the IMU has yawed transfer the pitch angle to the roll angel
+   Gyr_rawY += Gyr_rawX * sin(Gyr_rawZ * 0.00012);               //If the IMU has yawed transfer the roll angle to the pitch angel
+   Gyr_rawX -= Gyr_rawY * sin(Gyr_rawZ * 0.00012);               //If the IMU has yawed transfer the pitch angle to the roll angel
 
   
     /*Now we integrate the raw value in degrees per seconds in order to obtain the angle
@@ -104,15 +104,24 @@ void read_IMU(){
  Acc_angle_y = (atan(-1*(Acc_rawX)/sqrt(pow((Acc_rawY),2) + pow((Acc_rawZ),2)))*rad_to_deg) - Acc_angle_error_y;    
 
  //////////////////////////////////////Total angle and filter/////////////////////////////////////
- /*---X axis angle---*/
- Total_angle_x = 0.98 *(Total_angle_x + Gyro_angle_x) + 0.02*Acc_angle_x;
- gyro_roll_input = Total_angle_x;
- /*---Y axis angle---*/
- Total_angle_y = 0.98 *(Total_angle_y + Gyro_angle_y) + 0.02*Acc_angle_y;
- gyro_pitch_input = Total_angle_y;
- /*---Z axis angle---*/
- Total_angle_z = 0.98 *(Total_angle_z + Gyro_angle_z) + 0.02*Acc_angle_z;
- gyro_yaw_input = Total_angle_z;
+ 
+  if(set_gyro_angles){                                                 //If the IMU is already started
+    /*---X axis angle---*/
+   Total_angle_x = 0.98 *(Total_angle_x + Gyro_angle_x) + 0.02*Acc_angle_x;
+   gyro_roll_input = Total_angle_x;
+   /*---Y axis angle---*/
+   Total_angle_y = 0.98 *(Total_angle_y + Gyro_angle_y) + 0.02*Acc_angle_y;
+   gyro_pitch_input = Total_angle_y;
+   /*---Z axis angle---*/
+   Total_angle_z = 0.98 *(Total_angle_z + Gyro_angle_z) + 0.02*Acc_angle_z;
+   gyro_yaw_input = Total_angle_z;
+  }
+  else{                                                                //At first start
+    gyro_roll_input = Acc_angle_x;                                     //Set the gyro pitch angle equal to the accelerometer pitch angle 
+    gyro_pitch_input = Acc_angle_y;                                       //Set the gyro roll angle equal to the accelerometer roll angle 
+    set_gyro_angles = true;                                            //Set the IMU started flag
+  }
+
  
   Serial.print(gyro_roll_input);
   Serial.print(" | ");
