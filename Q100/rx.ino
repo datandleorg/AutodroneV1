@@ -28,7 +28,10 @@ const uint64_t pAddress = 0xB00B1E5000LL; //Create a pipe addresses for the 2 no
 
 void setup(){
  pinMode(IRQ_PIN, INPUT);
- wirelessSPI.begin(); //Start the nRF24 module
+   if (!wirelessSPI.begin()) {
+    Serial.println(F("radio hardware is not responding!!"));
+    while (1) {}  // hold in infinite loop
+  }
  wirelessSPI.setAutoAck(1); // Ensure autoACK is enabled so rec sends ack packet to let you know it got the transmit packet payload
  wirelessSPI.enableAckPayload(); //allows you to include payload on ack packet
  wirelessSPI.maskIRQ(1,1,0); //mask all IRQ triggers except for receive (1 is mask, 0 is no mask)
