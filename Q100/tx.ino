@@ -16,14 +16,14 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 #define CYAN 0x07FF
 #define YELLOW 0xFFE0
 
-const int pinCE = 7; //This pin is used to set the nRF24 to standby (0) or active mode (1)
-const int pinCSN = 8; //This pin is used to tell the nRF24 whether the SPI communication is a command or message to send out
+const int pinCE = 9; //This pin is used to set the nRF24 to standby (0) or active mode (1)
+const int pinCSN = 10; //This pin is used to tell the nRF24 whether the SPI communication is a command or message to send out
 
 RF24 wirelessSPI(pinCE, pinCSN); // Create your nRF24 object or wireless SPI connection
 const uint64_t pAddress = 0xB00B1E5000LL; // Radio pipe addresses for the 2 nodes to communicate.
 
-int VRy1 = A3;
-int SW1 = 3;
+int VRy1 = A6;
+int SW1 = 2;
 
 struct RadioPacket {
  uint32_t y1;
@@ -99,7 +99,7 @@ void sendData(){
     Serial.println("Sending packet"); 
     Serial.println("");
 
-  _radioData.y1 = map(analogRead(VRy1), 0, 1023, 0, 255);
+  _radioData.y1 = map(analogRead(VRy1), 0, 1023, 255, 0);
   _radioData.b1 = digitalRead(SW1);
 
     
