@@ -27,6 +27,8 @@ RF24 wirelessSPI(pinCE, pinCSN); // Declare object from nRF24 library (Create yo
 const uint64_t pAddress = 0xB00B1E5000LL; //Create a pipe addresses for the 2 nodes to communicate over, the "LL" is for LongLong type
 
 void setup(){
+ Serial.begin(115200); //start serial to communicate process
+
  pinMode(IRQ_PIN, INPUT);
    if (!wirelessSPI.begin()) {
     Serial.println(F("radio hardware is not responding!!"));
@@ -39,7 +41,6 @@ void setup(){
  wirelessSPI.openReadingPipe(1,pAddress); //open pipe o for recieving meassages with pipe address
  wirelessSPI.startListening(); // Start listening for messages
  attachInterrupt(digitalPinToInterrupt(IRQ_PIN), interruptFunction, FALLING); //Create interrupt: 0 for pin 2 or 1 for pin 3, the name of the interrupt function or ISR, and condition to trigger interrupt
- Serial.begin(115200); //start serial to communicate process
  delay(250);
 }
 
