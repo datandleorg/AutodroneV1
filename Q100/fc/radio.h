@@ -3,6 +3,9 @@
 #include <nRF24L01.h>  //nRF2401 libarary found at https://github.com/tmrh20/RF24/
 #include <avr/sleep.h> //library needed to use AVR based sleep API
 
+byte currentButtonState; // the current state of button
+byte lastButtonState;    // the previous state of button
+
 struct RadioPacket
 {
   //  uint32_t x1;
@@ -31,9 +34,13 @@ void interruptFunction()
   if (wirelessSPI.available())
   {
     wirelessSPI.read(&_radioData, sizeof(_radioData));
-    throttle = map(_radioData.y1, 0, 255, 0, 3000);
-    flightStatus = _radioData.b1 == 0 ? false : true;
+    throttle = map(_radioData.y1, 0, 100, 0, 3000);
+    lastButtonState = currentButtonState;
+    currentButtonState = _radioData.b1;
     _radioAckData.f_status = 1;
+    if(lastButtonState == HIGH && currentButtonState == LOW) {
+       flightStatus = !flightStatus;
+    } 
     wirelessSPI.writeAckPayload(1, &_radioAckData, sizeof(_radioAckData));
   }
 }

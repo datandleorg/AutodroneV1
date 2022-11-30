@@ -15,9 +15,7 @@ float Acc_angle_x, Acc_angle_y, Acc_angle_z;          //Here we store the angle 
 float Acc_angle_error_x, Acc_angle_error_y, Acc_angle_error_z; //Here we store the initial Acc data error
 
 float Total_angle_x, Total_angle_y, Total_angle_z;
-unsigned long loop_timer;
 int temperature;
-float gyro_roll_input,gyro_pitch_input,gyro_yaw_input;
 boolean set_gyro_angles = false;
 
 
@@ -111,6 +109,7 @@ void connectIMU(){
 void setupIMU() {
   // put your setup code here, to run once:
   Wire.begin();                                                        //Start I2C as master
+  TWBR = 12; //Set the I2C clock speed to 400kHz.
   connectIMU();
   delay(6000); 
   calcAccError();
@@ -118,6 +117,11 @@ void setupIMU() {
 }
 
 void read_IMU(){
+  timePrev = time;                        // the previous time is stored before the actual time read
+  time = millis();                        // actual time read
+  elapsedTime = (time - timePrev) / 1000; //divide by 1000 in order to obtain seconds
+
+ 
   Wire.beginTransmission(0x68);                                   //Start communication with the gyro.
   Wire.write(0x3B);                                                       //Start reading @ register 43h and auto increment with every read.
   Wire.endTransmission();                                                 //End the transmission.

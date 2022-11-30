@@ -5,13 +5,13 @@ void setupPWM()
 {
     DDRD |= B01111000;
     loop_timer = micros();
+    battery_voltage = (1023 + 65) * 1.2317;
 }
 
 void sendPWM()
 {
 
-    while (micros() - loop_timer < 4000)
-        ;
+    while (micros() - loop_timer < 4000);
     loop_timer = micros();
 
     PORTD |= B01111000;
@@ -19,6 +19,8 @@ void sendPWM()
     timer_channel_2 = esc_2 + loop_timer;
     timer_channel_3 = esc_3 + loop_timer;
     timer_channel_4 = esc_4 + loop_timer;
+
+    read_IMU();
 
     while (PORTD >= 16)
     {
